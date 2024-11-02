@@ -74,6 +74,7 @@ def send_and_wait(command):
 
 def start():
     """Tell the drone to start receiving commands."""
+    print("Start command begun")
     if (this.sock is None):
         this.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         this.sock.bind(('', 9000))
@@ -83,12 +84,14 @@ def start():
 
 def takeoff():
     """Sends the command to the drone to take off."""
+    print("Takeoff command begun")
     response = send_and_wait("takeoff")
     if response != "ok":
         raise RuntimeError("Drone failed to take off.")
 
 def land():
     """Sends the command to the drone to land."""
+    print("Land command begun")
     response = send_and_wait("land")
 
 def get_tof():
@@ -140,6 +143,8 @@ def forward(centimeters):
     Arguments:
         int: centimeters (20-500) -- The distance to move forward by in centimeters
     """
+
+    print("Forward command begun")
     assert(centimeters >= 20), "Distance is less than 20cm (valid range is 20cm-500cm)."
     assert(centimeters <= 500), "Distance is more than 500cm (valid range is 20cm-500cm)."
     response = send_and_wait('forward %d' % (centimeters))
@@ -150,6 +155,8 @@ def backward(centimeters):
     Arguments:
         int: centimeters (20-500) -- The distance to move backward by in centimeters
     """
+
+    print("Backward command begun")
     assert(centimeters >= 20), "Distance is less than 20cm (valid range is 20cm-500cm)."
     assert(centimeters <= 500), "Distance is more than 500cm (valid range is 20cm-500cm)."
     response = send_and_wait('back %d' % (centimeters))
@@ -160,6 +167,9 @@ def left(centimeters):
     Arguments:
         int: centimeters (20-500) -- The distance to move left by in centimeters
     """
+
+
+    print("Left command begun")
     assert(centimeters >= 20), "Distance is less than 20cm (valid range is 20cm-500cm)."
     assert(centimeters <= 500), "Distance is more than 500cm (valid range is 20cm-500cm)."
     response = send_and_wait('left %d' % (centimeters))
@@ -170,6 +180,8 @@ def right(centimeters):
     Arguments:
         int: centimeters (20-500) -- The distance to move right by in centimeters
     """
+
+    print("Right command begun")
     assert(centimeters >= 20), "Distance is less than 20cm (valid range is 20cm-500cm)."
     assert(centimeters <= 500), "Distance is more than 500cm (valid range is 20cm-500cm)."
     response = send_and_wait('right %d' % (centimeters))
@@ -180,6 +192,8 @@ def up(centimeters):
     Arguments:
         int: centimeters (20-500) -- The distance to move up by in centimeters
     """
+
+    print("Up command begun")
     assert(centimeters >= 20), "Distance is less than 20cm (valid range is 20cm-500cm)."
     assert(centimeters <= 500), "Distance is more than 500cm (valid range is 20cm-500cm)."
     response = send_and_wait('up %d' % (centimeters))
@@ -190,6 +204,8 @@ def down(centimeters):
     Arguments:
         int: centimeters (20-500) -- The distance to move down by in centimeters
     """
+
+    print("Down command begun")
     assert(centimeters >= 20), "Distance is less than 20cm (valid range is 20cm-500cm)."
     assert(centimeters <= 500), "Distance is more than 500cm (valid range is 20cm-500cm)."
     response = send_and_wait('down %d' % (centimeters))
@@ -200,6 +216,8 @@ def anticlockwise(degrees):
     Arguments:
         int: degrees (1-360) -- Number of degrees to turn by
     """
+
+    print("Anti clockwise command begun")
     assert(degrees > 0), "Valid range for degrees to turn by is 1-360"
     assert(degrees <= 360), "Valid range for degrees to turn by is 1-360"
     response = send_and_wait('ccw %d' % (degrees))
@@ -210,27 +228,37 @@ def clockwise(degrees):
     Arguments:
         int: degrees (1-360) -- Number of degrees to turn by
     """
+
+    print("Clockwise command begun")
     assert(degrees > 0), "Valid range for degrees to turn by is 1-360"
     assert(degrees <= 360), "Valid range for degrees to turn by is 1-360"
     response = send_and_wait('cw %d' % (degrees))
 
 def flip_forward():
     """Performs a forward flip."""
+
+    print("Flip Foward command begun")
     # TODO: Assert battery is high enough to perform flip before attempting
     send_and_wait("flip f")
 
 def flip_backward():
     """Performs a backward flip."""
+
+    print("Flip Backward command begun")
     # TODO: Assert battery is high enough to perform flip before attempting
     send_and_wait("flip b")
 
 def flip_left():
     """Performs a left flip."""
+
+    print("Flip Left command begun")
     # TODO: Assert battery is high enough to perform flip before attempting
     send_and_wait("flip l")
 
 def flip_right():
     """Performs a right flip."""
+
+    print("Flip Right command begun")
     # TODO: Assert battery is high enough to perform flip before attempting
     send_and_wait("flip r")
 
