@@ -1,6 +1,7 @@
-numpy==2.1.2
+numpy==1.23.5
 opencv-python==4.10.0.84
 pillow==11.0.0
 pygame==2.6.1
 tello==1.2
-djitellopy==2.4.0
+tensorflow==2.13.0
+jsonschema==3.2.0
