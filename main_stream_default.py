@@ -57,6 +57,7 @@ while True:
             distance_offset = abs(ideal_face_width - w)     # of an arbitrary unit and scale
             maybe_forward_dist = max(20, int(GAIN_X * distance_offset))
 
+
             # Set up a priority order of events:
             #   1. Move up/down
             #   2. Move left/right
@@ -99,6 +100,8 @@ while True:
 
         # Display the frame
         cv2.imshow('Tello', frame)
+
+        # EXITS
         if cv2.waitKey(1) & 0xFF == ord('q'):   # Press 'q' to exit the program
             send_command("land")
             break
