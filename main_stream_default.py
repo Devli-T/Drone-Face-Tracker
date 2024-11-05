@@ -55,6 +55,7 @@ while True:
             # Adjust forward/backward to maintain an ideal distance from face
             ideal_face_width = 120  # Target face size in pixels
             distance_offset = abs(ideal_face_width - w)     # of an arbitrary unit and scale
+            maybe_forward_dist = max(20, int(GAIN_X * distance_offset))
 
             # Set up a priority order of events:
             #   1. Move up/down
@@ -87,9 +88,11 @@ while True:
 
             # Forward / backward + with deadzone
             elif distance_offset > 80:
-                send_command(f'forward {max(20, int(GAIN_X * distance_offset))}')
+                print(f"forward {maybe_forward_dist}")
+                send_command(f'forward {maybe_forward_dist}')
             elif distance_offset < 60:
-                send_command(f'back {max(20, int(GAIN_X * distance_offset))}')
+                print(f"back {maybe_forward_dist}")
+                send_command(f'back {maybe_forward_dist}')
 
             # Break out after handling the first detected face
             break
