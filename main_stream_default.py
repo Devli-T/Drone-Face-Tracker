@@ -25,6 +25,11 @@ centre_frame_x = 320 // 2  # Assuming resized frame of 320x240
 centre_frame_y = 240 // 2
 
 while True:
+    # Beginning the drone
+    send_command("command")
+    time.sleep(1)   # Add a slight delay to be sure
+    send_command("takeoff")  
+
     ret, frame = tello_video.read()
     if ret:
         frame = cv2.resize(frame, (320, 240))  # Resize for faster processing
@@ -46,45 +51,57 @@ while True:
             offset_x = face_centre_x - centre_frame_x
             offset_y = face_centre_y - centre_frame_y
 
-            # Determine movement commands based on proportional control
-            if abs(offset_x) > 20:  # Horizontal movement threshold
-                # Rotate (yaw) instead of lateral movement for smoother tracking
-                yaw_speed = int(GAIN_YAW * offset_x)
-                if yaw_speed > 0:
-                    print("yaw right")
-                    send_command(f'cw {min(yaw_speed, 30)}')  # Rotate clockwise
-                else:
-                    print("yaw left")
-                    send_command(f'ccw {min(-yaw_speed, 30)}')  # Rotate counterclockwise
-
-            if abs(offset_y) > 20:  # Vertical movement threshold
-                up_down_speed = int(GAIN_Y * offset_y)
-                if up_down_speed > 0:
-                    print("up")
-                    send_command(f'up {max(up_down_speed, 20)}')
-                else:
-                    print("down")
-                    send_command(f'down {max(-up_down_speed, 20)}')
 
             # Adjust forward/backward to maintain an ideal distance from face
             ideal_face_width = 120  # Target face size in pixels
-            distance_offset = ideal_face_width - w
+            distance_offset = abs(ideal_face_width - w)     # of an arbitrary unit and scale
 
-            if abs(distance_offset) > 70:  # Lowered distance threshold for better responsiveness
-                forward_back_speed = max(10, int(GAIN_X * distance_offset))  # Minimum speed of 10
-                if forward_back_speed > 0:
-                    print("forward")
-                    send_command(f'forward {max(forward_back_speed, 20)}')
+            # Set up a priority order of events:
+            #   1. Move up/down
+            #   2. Move left/right
+            #   3. Move forward/backwards
+            # Removing the 'elif's for regular if's can test if the drone can handle multiple at once.
+
+            # Up / Down
+            if abs(offset_y) > 20:  # Vertical movement threshold
+                up_down_speed = max(abs(int(GAIN_Y * offset_y)), 20)    # in cm
+
+                if offset_y > 0:
+                    print("up")
+                    send_command(f'up {up_down_speed}')
                 else:
-                    print("back")
-                    send_command(f'back {max(-forward_back_speed, 20)}')
+                    print("down")
+                    send_command(f'down {up_down_speed}')
+
+            # Left / Right
+            elif abs(offset_x) > 20:  # 20 is not determined by the angle. It is an arbitrary number.
+                yaw_speed = abs(int(GAIN_YAW * offset_x))
+                rotation_deg = min(max(yaw_speed, 1), 30)  # Bound between 1 and 30 degrees.
+
+                if offset_x > 0: 
+                    print(f"Yaw left {rotation_deg}")
+                    send_command(f'cw {rotation_deg}')
+                else: 
+                    print(f"Yaw right {rotation_deg}")
+                    send_command(f'ccw {rotation_deg}')
+
+            # Forward / backward + with deadzone
+            elif distance_offset > 80:
+                send_command(f'forward {max(20, int(GAIN_X * distance_offset))}')
+            elif distance_offset < 60:
+                send_command(f'back {max(20, int(GAIN_X * distance_offset))}')
 
             # Break out after handling the first detected face
             break
 
         # Display the frame
         cv2.imshow('Tello', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):   # Press 'q' to exit the program
+            send_command("land")
+            break
+
+        if cv2.waitKey(1) & 0xFF == ord('d'):   # Press 'd' to *ABORT* the program
+            send_command("emergency")
             break
 
 # Cleanup
