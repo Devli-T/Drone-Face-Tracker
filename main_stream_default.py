@@ -10,8 +10,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 tello_address = ('192.168.10.1', 8889)
 
 # Proportional gain constants for smoother movement
-GAIN_X = 0.2  # Horizontal movement
-GAIN_Y = 0.2  # Vertical movement
+GAIN_X = 0.5  # Horizontal movement
+GAIN_Y = 0.5  # Vertical movement
 GAIN_YAW = 0.5  # Rotation
 
 def send_command(command):
