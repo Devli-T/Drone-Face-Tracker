@@ -9,13 +9,20 @@ drone.start()
 print("Beginning video stream...")
 drone.start_video()
 
-# print("Taking off...")
-# drone.takeoff()
+print("Taking off...")
+drone.takeoff()
 
-time.sleep(10)
+time.sleep(2)
 
-# print("Landing...")
-# drone.land()
+print("Fowrard")
+
+for i in range(20):
+    drone.left(20)
+    time.sleep(0.1)
+
+
+print("Landing...")
+drone.land()
 
 print("Quitting...")
 stop_video_feed = True

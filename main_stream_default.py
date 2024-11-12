@@ -10,8 +10,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 tello_address = ('192.168.10.1', 8889)
 
 # Proportional gain constants for smoother movement
-GAIN_X = 0.5  # Horizontal movement
-GAIN_Y = 0.5  # Vertical movement
+GAIN_X = 0.3  # Horizontal movement
+GAIN_Y = 0.3  # Vertical movement
 GAIN_YAW = 0.5  # Rotation
 
 def send_command(command):
@@ -26,9 +26,9 @@ centre_frame_y = 240 // 2
 
 while True:
     # Beginning the drone
-    send_command("command")
-    time.sleep(1)   # Add a slight delay to be sure
-    send_command("takeoff")  
+    # send_command("command")
+    # time.sleep(1)   # Add a slight delay to be sure
+    # send_command("takeoff")  
 
     ret, frame = tello_video.read()
     if ret:
@@ -41,7 +41,9 @@ while True:
         else:
             faces = []
 
-        for (x, y, w, h) in faces:
+        if len(faces) > 0:
+            (x, y, w, h) = sorted(faces, key=lambda x: x[2] * x[3], reverse=True)[0]
+            
             # Calculate face centre
             face_centre_x = x + w // 2
             face_centre_y = y + h // 2
@@ -50,13 +52,13 @@ while True:
             # Calculate offsets from frame centre
             offset_x = face_centre_x - centre_frame_x
             offset_y = face_centre_y - centre_frame_y
-
-
+            
             # Adjust forward/backward to maintain an ideal distance from face
             ideal_face_width = 120  # Target face size in pixels
             distance_offset = abs(ideal_face_width - w)     # of an arbitrary unit and scale
             maybe_forward_dist = max(20, int(GAIN_X * distance_offset))
-
+            
+            print(f"Face at {face_centre_x}, {face_centre_y} with offset {offset_x}, {offset_y} at dist {distance_offset}")
 
             # Set up a priority order of events:
             #   1. Move up/down
@@ -65,18 +67,18 @@ while True:
             # Removing the 'elif's for regular if's can test if the drone can handle multiple at once.
 
             # Up / Down
-            if abs(offset_y) > 20:  # Vertical movement threshold
-                up_down_speed = max(abs(int(GAIN_Y * offset_y)), 20)    # in cm
+            # if abs(offset_y) > 20:  # Vertical movement threshold
+            #     up_down_speed = max(abs(int(GAIN_Y * offset_y)), 20)    # in cm
 
-                if offset_y > 0:
-                    print("up")
-                    send_command(f'up {up_down_speed}')
-                else:
-                    print("down")
-                    send_command(f'down {up_down_speed}')
+            #     if offset_y > 0:
+            #         print("up")
+            #         send_command(f'up {up_down_speed}')
+            #     else:
+            #         print("down")
+            #         send_command(f'down {up_down_speed}')
 
             # Left / Right
-            elif abs(offset_x) > 20:  # 20 is not determined by the angle. It is an arbitrary number.
+            if abs(offset_x) > 20:  # 20 is not determined by the angle. It is an arbitrary number.
                 yaw_speed = abs(int(GAIN_YAW * offset_x))
                 rotation_deg = min(max(yaw_speed, 1), 30)  # Bound between 1 and 30 degrees.
 
@@ -87,16 +89,13 @@ while True:
                     print(f"Yaw right {rotation_deg}")
                     send_command(f'ccw {rotation_deg}')
 
-            # Forward / backward + with deadzone
-            elif distance_offset > 80:
-                print(f"forward {maybe_forward_dist}")
-                send_command(f'forward {maybe_forward_dist}')
-            elif distance_offset < 60:
-                print(f"back {maybe_forward_dist}")
-                send_command(f'back {maybe_forward_dist}')
-
-            # Break out after handling the first detected face
-            break
+            # # Forward / backward + with deadzone
+            # if distance_offset > 80:
+            #     print(f"forward {maybe_forward_dist}")
+            #     send_command(f'forward {maybe_forward_dist}')
+            # if distance_offset < 60:
+            #     print(f"back {maybe_forward_dist}")
+            #     send_command(f'back {maybe_forward_dist}')
 
         # Display the frame
         cv2.imshow('Tello', frame)
